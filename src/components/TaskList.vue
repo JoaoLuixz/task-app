@@ -14,9 +14,46 @@ function handleTaskDeletion(taskId: string) {
 </script>
 
 <template>
-  <div v-for="task in tasks" :key="task.id">
-    <p>{{ task.content }}</p>
-    <input type="checkbox" @click="handleTaskToggle(task.id)" :checked="task.isDone" />
+  <div class="task-container" v-for="task in tasks" :key="task.id">
+    <div class="task-content-container">
+      <p :class="{ done: task.isDone }">{{ task.content }}</p>
+      <input type="checkbox" @click="handleTaskToggle(task.id)" :checked="task.isDone" />
+    </div>
     <button @click="handleTaskDeletion(task.id)">Delete</button>
   </div>
 </template>
+
+<style scoped>
+.done {
+  text-decoration: line-through;
+}
+
+.task-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: yellowgreen;
+  border-radius: 0.5rem;
+
+  button {
+    flex-grow: 1;
+  }
+}
+
+.task-content-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+
+  p {
+    font-weight: bold;
+  }
+
+  input {
+    border-radius: 50%;
+    background-color: black;
+    transform: scale(2);
+    float: right;
+  }
+}
+</style>
