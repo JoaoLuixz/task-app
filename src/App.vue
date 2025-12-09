@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Task } from './types'
 import TaskForm from './components/TaskForm.vue'
 import TaskList from './components/TaskList.vue'
+import { getFromLocalStorage, saveOnLocalStorage } from './utils/localStorage'
 
-const tasks = ref<Task[]>([])
+const tasks = ref<Task[]>(getFromLocalStorage())
 
 const hasTasks = computed(() => tasks.value.length > 0)
 
@@ -21,6 +22,10 @@ function toggleTask(taskId: string) {
 function deleteTask(taskId: string) {
   tasks.value = tasks.value.filter((task) => task.id !== taskId)
 }
+
+watch(tasks.value, () => {
+  saveOnLocalStorage(tasks.value)
+})
 </script>
 
 <template>
