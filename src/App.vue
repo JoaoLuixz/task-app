@@ -1,11 +1,24 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { Task } from './types'
+
+const tasks = ref<Task[]>([])
+const newTaskContent = ref<string>('')
+function addTask() {
+  if (!newTaskContent.value.trim()) return
+  const newTask: Task = { id: crypto.randomUUID(), content: newTaskContent.value, isDone: false }
+  tasks.value.push(newTask)
+  newTaskContent.value = ''
+}
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <h1>Task App</h1>
+
+  <form @submit.prevent="addTask">
+    <input v-model="newTaskContent" />
+    <button>Add</button>
+  </form>
 </template>
 
 <style scoped></style>
