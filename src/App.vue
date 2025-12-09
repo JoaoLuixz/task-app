@@ -19,6 +19,11 @@ function addTask() {
     <input v-model="newTaskContent" />
     <button>Add</button>
   </form>
+
+  <div v-for="task in tasks" :key="task.id">
+    <p>{{ task.content }}</p>
+    <input type="checkbox" :checked="task.isDone" />
+  </div>
 </template>
 
 <style scoped></style>
