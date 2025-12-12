@@ -3,3 +3,5 @@ export interface Task {
   content: string
   isDone: boolean
 }
+
+export type TaskFilter = 'done' | 'notDone' | 'all'

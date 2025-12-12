@@ -1,13 +1,26 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { Task } from './types'
+import type { Task, TaskFilter } from './types'
 import TaskForm from './components/TaskForm.vue'
 import TaskList from './components/TaskList.vue'
 import { getFromLocalStorage, saveOnLocalStorage } from './utils/localStorage'
+import FilterButton from './components/FilterButton.vue'
 
 const tasks = ref<Task[]>(getFromLocalStorage())
 
 const hasTasks = computed(() => tasks.value.length > 0)
+
+const filteringTasksBy = ref<TaskFilter>('all')
+
+const filteredTasks = computed(() => {
+  return tasks.value.filter((tasks) => {
+    if (filteringTasksBy.value === 'all') return true
+
+    if (filteringTasksBy.value === 'done') return tasks.isDone
+
+    return !tasks.isDone
+  })
+})
 
 function addTask(newTaskContent: string) {
   const newTask: Task = { id: crypto.randomUUID(), content: newTaskContent, isDone: false }
@@ -23,6 +36,9 @@ function deleteTask(taskId: string) {
   tasks.value = tasks.value.filter((task) => task.id !== taskId)
 }
 
+function changeTaskListFilter(newFilter: TaskFilter) {
+  filteringTasksBy.value = newFilter
+}
 watch(tasks.value, () => {
   saveOnLocalStorage(tasks.value)
 })
@@ -34,11 +50,19 @@ watch(tasks.value, () => {
       <div>
         <h1>Task App</h1>
         <TaskForm @addTask="addTask" />
+        <div class="filter-buttons-container">
+          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done">Done</FilterButton>
+          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="notDone"
+            >Todo</FilterButton
+          >
+          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="all">All</FilterButton>
+        </div>
+
         <div
           class="task-list-container"
           :class="{ 'justify-center': !hasTasks, ' justify-start': hasTasks }"
         >
-          <TaskList :tasks @toggleTask="toggleTask" @deleteTask="deleteTask" />
+          <TaskList :tasks="filteredTasks" @toggleTask="toggleTask" @deleteTask="deleteTask" />
           <span v-if="tasks.length === 0">No tasks</span>
         </div>
       </div>
@@ -54,6 +78,15 @@ watch(tasks.value, () => {
 .justify-start {
   justify-content: start;
 }
+
+.filter-buttons-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+  height: fit-content;
+  width: 100%;
+}
+
 main {
   display: flex;
   flex-direction: column;
@@ -76,17 +109,18 @@ main {
 .task-list-container {
   background-color: beige;
   width: 100%;
-  height: 50%;
   padding: 0.4rem;
   border-radius: 0.5rem;
   overflow: auto;
+  margin-bottom: 1rem;
 }
 
 .card {
   width: 60%;
-  height: 60%;
+  height: 80%;
   background-color: cornflowerblue;
   border-radius: 2%;
   box-shadow: 0 0 1rem;
+  margin: 1rem 0;
 }
 </style>
