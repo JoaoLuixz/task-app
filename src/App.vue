@@ -63,7 +63,7 @@ watch(tasks.value, () => {
           :class="{ 'justify-center': !hasTasks, ' justify-start': hasTasks }"
         >
           <TaskList :tasks="filteredTasks" @toggleTask="toggleTask" @deleteTask="deleteTask" />
-          <span v-if="tasks.length === 0">No tasks</span>
+          <span v-if="filteredTasks.length === 0">No tasks</span>
         </div>
       </div>
     </div>
