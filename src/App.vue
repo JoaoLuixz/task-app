@@ -39,7 +39,16 @@ function deleteTask(taskId: string) {
 function changeTaskListFilter(newFilter: TaskFilter) {
   filteringTasksBy.value = newFilter
 }
-watch(tasks.value, () => {
+
+const tasksDownloadLink = computed(() => {
+  const stringifiedTasks = JSON.stringify(tasks.value)
+
+  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+
+  return donwloadData
+})
+
+watch([tasks, tasks.value], () => {
   saveOnLocalStorage(tasks.value)
 })
 </script>
@@ -50,14 +59,20 @@ watch(tasks.value, () => {
       <div>
         <h1>Task App</h1>
         <TaskForm @addTask="addTask" />
-        <div class="filter-buttons-container">
-          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done">Done</FilterButton>
-          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="notDone"
-            >Todo</FilterButton
-          >
-          <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="all">All</FilterButton>
+        <div class="action-buttons-container">
+          <div class="download-container">
+            <a :href="tasksDownloadLink" download="tasks.json">Donwload</a>
+          </div>
+          <div class="filter-buttons-container">
+            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done"
+              >Done</FilterButton
+            >
+            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="notDone"
+              >Todo</FilterButton
+            >
+            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="all">All</FilterButton>
+          </div>
         </div>
-
         <div
           class="task-list-container"
           :class="{ 'justify-center': !hasTasks, ' justify-start': hasTasks }"
@@ -87,6 +102,20 @@ watch(tasks.value, () => {
   width: 100%;
 }
 
+.download-container {
+  display: flex;
+  justify-content: left;
+  align-items: start;
+  width: 100%;
+  height: fit-content;
+}
+
+.action-buttons-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: fit-content;
+}
 main {
   display: flex;
   flex-direction: column;
