@@ -22,6 +22,14 @@ const filteredTasks = computed(() => {
   })
 })
 
+const tasksDownloadLink = computed(() => {
+  const stringifiedTasks = JSON.stringify(tasks.value)
+
+  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+
+  return donwloadData
+})
+
 function addTask(newTaskContent: string) {
   const newTask: Task = { id: crypto.randomUUID(), content: newTaskContent, isDone: false }
   tasks.value.push(newTask)
@@ -40,13 +48,29 @@ function changeTaskListFilter(newFilter: TaskFilter) {
   filteringTasksBy.value = newFilter
 }
 
-const tasksDownloadLink = computed(() => {
-  const stringifiedTasks = JSON.stringify(tasks.value)
+function onTasksUpload(event: Event) {
+  const uploadedFile = (event.target as HTMLInputElement).files?.item(0)
 
-  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+  if (!uploadedFile) return
 
-  return donwloadData
-})
+  const reader = new FileReader()
+
+  reader.onload = (event) => {
+    try {
+      const uploadedTasks: Task[] = JSON.parse(event.target?.result as string)
+
+      tasks.value.push(
+        ...uploadedTasks.filter(
+          (uploadedTask) => !tasks.value.map((task) => task.id).includes(uploadedTask.id),
+        ),
+      )
+    } catch (error) {
+      console.error('ERROR', error)
+    }
+  }
+
+  reader.readAsText(uploadedFile)
+}
 
 watch([tasks, tasks.value], () => {
   saveOnLocalStorage(tasks.value)
@@ -62,6 +86,14 @@ watch([tasks, tasks.value], () => {
         <div class="action-buttons-container">
           <div class="download-container">
             <a :href="tasksDownloadLink" download="tasks.json">Donwload</a>
+            <label for="tasksUploadInput" class="uploadTasksLabel">Upload</label>
+            <input
+              type="file"
+              accept=".json"
+              id="tasksUploadInput"
+              @change="onTasksUpload"
+              hidden
+            />
           </div>
           <div class="filter-buttons-container">
             <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done"
@@ -104,6 +136,7 @@ watch([tasks, tasks.value], () => {
 
 .download-container {
   display: flex;
+  flex-direction: row;
   justify-content: left;
   align-items: start;
   width: 100%;
@@ -151,5 +184,10 @@ main {
   border-radius: 2%;
   box-shadow: 0 0 1rem;
   margin: 1rem 0;
+}
+.uploadTasksLabel {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>
