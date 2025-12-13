@@ -22,6 +22,14 @@ const filteredTasks = computed(() => {
   })
 })
 
+const tasksDownloadLink = computed(() => {
+  const stringifiedTasks = JSON.stringify(tasks.value)
+
+  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+
+  return donwloadData
+})
+
 function addTask(newTaskContent: string) {
   const newTask: Task = { id: crypto.randomUUID(), content: newTaskContent, isDone: false }
   tasks.value.push(newTask)
@@ -40,13 +48,29 @@ function changeTaskListFilter(newFilter: TaskFilter) {
   filteringTasksBy.value = newFilter
 }
 
-const tasksDownloadLink = computed(() => {
-  const stringifiedTasks = JSON.stringify(tasks.value)
+function onTasksUpload(event: Event) {
+  console.log((event.target as HTMLInputElement).files[0])
+  const uploadedFile = (event.target as HTMLInputElement).files[0]
+  const reader = new FileReader()
 
-  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+  reader.onload = (event) => {
+    try {
+      console.log('triggered')
+      const uploadedTasks: Task[] = JSON.parse(event.target.result as string)
+      console.log(uploadedTasks)
 
-  return donwloadData
-})
+      tasks.value.push(
+        ...uploadedTasks.filter(
+          (uploadedTask) => !tasks.value.map((task) => task.id).includes(uploadedTask.id),
+        ),
+      )
+    } catch (error) {
+      console.log('ERROR', error)
+    }
+  }
+
+  reader.readAsText(uploadedFile)
+}
 
 watch([tasks, tasks.value], () => {
   saveOnLocalStorage(tasks.value)
@@ -62,6 +86,7 @@ watch([tasks, tasks.value], () => {
         <div class="action-buttons-container">
           <div class="download-container">
             <a :href="tasksDownloadLink" download="tasks.json">Donwload</a>
+            <input type="file" accept=".json" @change="onTasksUpload" />
           </div>
           <div class="filter-buttons-container">
             <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done"
