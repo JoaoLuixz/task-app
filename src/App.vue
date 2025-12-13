@@ -84,7 +84,14 @@ watch([tasks, tasks.value], () => {
         <div class="action-buttons-container">
           <div class="download-container">
             <a :href="tasksDownloadLink" download="tasks.json">Donwload</a>
-            <input type="file" accept=".json" @change="onTasksUpload" />
+            <label for="tasksUploadInput" class="uploadTasksLabel">Upload</label>
+            <input
+              type="file"
+              accept=".json"
+              id="tasksUploadInput"
+              @change="onTasksUpload"
+              hidden
+            />
           </div>
           <div class="filter-buttons-container">
             <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done"
@@ -127,6 +134,7 @@ watch([tasks, tasks.value], () => {
 
 .download-container {
   display: flex;
+  flex-direction: row;
   justify-content: left;
   align-items: start;
   width: 100%;
@@ -174,5 +182,10 @@ main {
   border-radius: 2%;
   box-shadow: 0 0 1rem;
   margin: 1rem 0;
+}
+.uploadTasksLabel {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
 }
 </style>
