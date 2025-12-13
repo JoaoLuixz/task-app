@@ -55,9 +55,7 @@ function onTasksUpload(event: Event) {
 
   reader.onload = (event) => {
     try {
-      console.log('triggered')
       const uploadedTasks: Task[] = JSON.parse(event.target.result as string)
-      console.log(uploadedTasks)
 
       tasks.value.push(
         ...uploadedTasks.filter(
@@ -65,7 +63,7 @@ function onTasksUpload(event: Event) {
         ),
       )
     } catch (error) {
-      console.log('ERROR', error)
+      console.error('ERROR', error)
     }
   }
 
