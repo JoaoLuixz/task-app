@@ -43,6 +43,7 @@ function handleTaskDeletion(taskId: string) {
 .task-content-container {
   display: flex;
   gap: 1rem;
+  align-items: center;
   justify-content: center;
 
   p {
@@ -50,10 +51,9 @@ function handleTaskDeletion(taskId: string) {
   }
 
   input {
-    border-radius: 50%;
-    background-color: black;
+    height: fit-content;
+    width: fit-content;
     transform: scale(2);
-    float: right;
   }
 }
 </style>
