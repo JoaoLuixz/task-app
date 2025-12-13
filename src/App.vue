@@ -49,12 +49,15 @@ function changeTaskListFilter(newFilter: TaskFilter) {
 }
 
 function onTasksUpload(event: Event) {
-  const uploadedFile = (event.target as HTMLInputElement).files[0]
+  const uploadedFile = (event.target as HTMLInputElement).files?.item(0)
+
+  if (!uploadedFile) return
+
   const reader = new FileReader()
 
   reader.onload = (event) => {
     try {
-      const uploadedTasks: Task[] = JSON.parse(event.target.result as string)
+      const uploadedTasks: Task[] = JSON.parse(event.target?.result as string)
 
       tasks.value.push(
         ...uploadedTasks.filter(
