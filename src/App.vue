@@ -49,7 +49,6 @@ function changeTaskListFilter(newFilter: TaskFilter) {
 }
 
 function onTasksUpload(event: Event) {
-  console.log((event.target as HTMLInputElement).files[0])
   const uploadedFile = (event.target as HTMLInputElement).files[0]
   const reader = new FileReader()
 
