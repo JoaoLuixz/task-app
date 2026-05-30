@@ -25,9 +25,9 @@ const filteredTasks = computed(() => {
 const tasksDownloadLink = computed(() => {
   const stringifiedTasks = JSON.stringify(tasks.value)
 
-  const donwloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+  const downloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
 
-  return donwloadData
+  return downloadData
 })
 
 function addTask(newTaskContent: string) {
