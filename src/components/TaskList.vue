@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import type { Task } from '@/types'
+import type { Task } from '@/types';
 
-defineProps<{ tasks: Task[] }>()
-const emit = defineEmits<{ toggleTask: [taskId: string]; deleteTask: [taskId: string] }>()
+defineProps<{ tasks: Task[] }>();
+const emit = defineEmits<{ toggleTask: [taskId: number]; deleteTask: [taskId: number] }>();
 
-function handleTaskToggle(taskId: string) {
-  emit('toggleTask', taskId)
+function handleTaskToggle(taskId: number) {
+  emit('toggleTask', taskId);
 }
 
-function handleTaskDeletion(taskId: string) {
-  emit('deleteTask', taskId)
+function handleTaskDeletion(taskId: number) {
+  emit('deleteTask', taskId);
 }
 </script>
 
