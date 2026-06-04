@@ -21,7 +21,33 @@ export function useIndexDB(
       request.onsuccess = (event) => {
         const taskKeyPath = (event.target as IDBRequest<IDBValidKey>).result;
 
-        resolve({ createdTask: { ...newTask, id: taskKeyPath.toString() } });
+        resolve({ createdTask: { ...newTask, id: taskKeyPath as number } });
+      };
+    });
+  }
+
+  async function updateTask(
+    taskId: number,
+    { storeName }: { storeName: string } = { storeName: config.defaultTaskObjectStoreName },
+  ): Promise<{ error?: Error; task?: Task }> {
+    const db = await startDatabase();
+
+    return new Promise((resolve, reject) => {
+      const tasksObjectStore = db.transaction(storeName, 'readwrite').objectStore(storeName);
+      const taskObjectStoreRequest = tasksObjectStore.get(taskId);
+
+      taskObjectStoreRequest.onerror = () => {
+        reject({ error: { message: 'Could not update task' } });
+      };
+
+      taskObjectStoreRequest.onsuccess = () => {
+        const task: Task = taskObjectStoreRequest.result;
+
+        task.isDone = !task.isDone;
+
+        tasksObjectStore.put(task);
+
+        resolve({ task });
       };
     });
   }
@@ -38,7 +64,7 @@ export function useIndexDB(
 
     return new Promise((resolve, reject) => {
       request.onerror = () => {
-        reject({ error: 'Could not get tasks', tasks: undefined });
+        reject({ error: { message: 'Could not get tasks' }, tasks: undefined });
       };
 
       request.onsuccess = (event) => {
@@ -48,5 +74,5 @@ export function useIndexDB(
     });
   }
 
-  return { addTask, getTasks };
+  return { addTask, getTasks, updateTask };
 }
