@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const emit = defineEmits<{ addTask: [taskContent: string] }>()
-const newTaskContent = ref<string>('')
+const emit = defineEmits<{ addTask: [taskContent: string] }>();
+const newTaskContent = ref<string>('');
 
 function addTask() {
-  if (!newTaskContent.value.trim()) return
-  emit('addTask', newTaskContent.value)
-  newTaskContent.value = ''
+  if (!newTaskContent.value.trim()) return;
+  emit('addTask', newTaskContent.value);
+  newTaskContent.value = '';
 }
 </script>
 
