@@ -18,7 +18,7 @@ async function startDatabase(
 
     request.onupgradeneeded = (event) => {
       const newDatabase = (event.target as IDBRequest<IDBDatabase>).result;
-      newDatabase.createObjectStore('tasks', { keyPath: 'ID', autoIncrement: true });
+      newDatabase.createObjectStore('tasks', { keyPath: 'id', autoIncrement: true });
     };
   });
 }

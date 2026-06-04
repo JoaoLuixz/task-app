@@ -18,8 +18,9 @@ export function useIndexDB(
         reject({ error: 'could not add task to database' });
       };
 
-      request.onsuccess = () => {
-        const taskKeyPath = request.result;
+      request.onsuccess = (event) => {
+        const taskKeyPath = (event.target as IDBRequest<IDBValidKey>).result;
+
         resolve({ createdTask: { ...newTask, id: taskKeyPath.toString() } });
       };
     });
@@ -29,14 +30,11 @@ export function useIndexDB(
     { storeName }: { storeName: string } = { storeName: config.defaultTaskObjectStoreName },
   ): Promise<{ error?: Error; tasks: Task[] }> {
     const db = await startDatabase();
-    console.log('inside get tasks');
-    console.log('database', db);
 
     const dbTransaction = db.transaction(storeName, 'readonly');
     const tasksObjectStore = dbTransaction.objectStore(storeName);
 
     const request = tasksObjectStore.getAll();
-    console.log('request', request);
 
     return new Promise((resolve, reject) => {
       request.onerror = () => {
@@ -45,7 +43,6 @@ export function useIndexDB(
 
       request.onsuccess = (event) => {
         const tasks = (event.target as IDBRequest<Task[]>).result;
-        console.log(tasks);
         resolve({ error: undefined, tasks });
       };
     });
