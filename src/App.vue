@@ -1,80 +1,131 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import type { Task, TaskFilter } from './types'
-import TaskForm from './components/TaskForm.vue'
-import TaskList from './components/TaskList.vue'
-import { getFromLocalStorage, saveOnLocalStorage } from './utils/localStorage'
-import FilterButton from './components/FilterButton.vue'
+import { ref, computed, watchEffect } from 'vue';
+import type { Task, TaskFilter } from './types';
+import TaskForm from './components/TaskForm.vue';
+import TaskList from './components/TaskList.vue';
+import FilterButton from './components/FilterButton.vue';
+import { useIndexDB } from './composables/useIndexDB.ts';
 
-const tasks = ref<Task[]>(getFromLocalStorage())
+const tasks = ref<Task[]>([]);
 
-const hasTasks = computed(() => tasks.value.length > 0)
+const hasTasks = computed(() => tasks.value.length > 0);
 
-const filteringTasksBy = ref<TaskFilter>('all')
+const filteringTasksBy = ref<TaskFilter>('all');
+
+const db = useIndexDB();
 
 const filteredTasks = computed(() => {
   return tasks.value.filter((tasks) => {
-    if (filteringTasksBy.value === 'all') return true
+    if (filteringTasksBy.value === 'all') return true;
 
-    if (filteringTasksBy.value === 'done') return tasks.isDone
+    if (filteringTasksBy.value === 'done') return tasks.isDone;
 
-    return !tasks.isDone
-  })
-})
+    return !tasks.isDone;
+  });
+});
 
 const tasksDownloadLink = computed(() => {
-  const stringifiedTasks = JSON.stringify(tasks.value)
+  const stringifiedTasks = JSON.stringify(tasks.value);
 
-  const downloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`
+  const downloadData = `data:text/json;charset=utf-8,${encodeURIComponent(stringifiedTasks)}`;
 
-  return downloadData
-})
+  return downloadData;
+});
 
 function addTask(newTaskContent: string) {
-  const newTask: Task = { id: crypto.randomUUID(), content: newTaskContent, isDone: false }
-  tasks.value.push(newTask)
+  db.createTask({ content: newTaskContent, isDone: false }).then(({ error, task: createdTask }) => {
+    if (error !== undefined) {
+      console.error(error.message);
+      return;
+    }
+
+    if (createdTask === undefined) {
+      console.error('Task not created');
+      return;
+    }
+
+    tasks.value.push(createdTask);
+  });
 }
 
-function toggleTask(taskId: string) {
-  const task = tasks.value.find((task) => task.id === taskId)
-  if (task) task.isDone = !task.isDone
+function toggleTask(taskId: number) {
+  db.updateTask(taskId).then(({ error, task: updatedTask }) => {
+    if (error !== undefined) {
+      console.error(error.message);
+      return;
+    }
+
+    if (updatedTask === undefined) {
+      console.error('could no find task');
+      return;
+    }
+
+    const taskToUpdate = tasks.value.find((task) => task.id === updatedTask?.id);
+
+    if (taskToUpdate !== undefined) taskToUpdate.isDone = updatedTask.isDone;
+  });
 }
 
-function deleteTask(taskId: string) {
-  tasks.value = tasks.value.filter((task) => task.id !== taskId)
+function deleteTask(taskId: number) {
+  db.deleteTask(taskId).then(({ error, task: deletedTask }) => {
+    if (error !== undefined) {
+      console.error(error.message);
+
+      return;
+    }
+
+    if (deletedTask === undefined) {
+      console.error('Could not delete task');
+      return;
+    }
+
+    tasks.value = tasks.value.filter((task) => task.id !== deletedTask.id);
+  });
 }
 
 function changeTaskListFilter(newFilter: TaskFilter) {
-  filteringTasksBy.value = newFilter
+  filteringTasksBy.value = newFilter;
 }
 
 function onTasksUpload(event: Event) {
-  const uploadedFile = (event.target as HTMLInputElement).files?.item(0)
+  const uploadedFile = (event.target as HTMLInputElement).files?.item(0);
 
-  if (!uploadedFile) return
+  if (!uploadedFile) return;
 
-  const reader = new FileReader()
+  const reader = new FileReader();
 
   reader.onload = (event) => {
     try {
-      const uploadedTasks: Task[] = JSON.parse(event.target?.result as string)
+      const uploadedTasks: Task[] = JSON.parse(event.target?.result as string);
 
-      tasks.value.push(
-        ...uploadedTasks.filter(
-          (uploadedTask) => !tasks.value.map((task) => task.id).includes(uploadedTask.id),
-        ),
-      )
+      for (const task of uploadedTasks) {
+        db.createTask({ content: task.content, isDone: task.isDone }).then(
+          ({ error, task: createdTask }) => {
+            if (error !== undefined || createdTask === undefined) {
+              console.error(error?.message);
+              return;
+            }
+
+            tasks.value.push(createdTask);
+          },
+        );
+      }
     } catch (error) {
-      console.error('ERROR', error)
+      console.error('ERROR: ', error);
     }
+  };
+
+  reader.readAsText(uploadedFile);
+}
+watchEffect(async () => {
+  const { error, tasks: dbTasks } = await db.getTasks();
+  if (error !== undefined) {
+    console.error(error.message);
+    return;
   }
 
-  reader.readAsText(uploadedFile)
-}
-
-watch([tasks, tasks.value], () => {
-  saveOnLocalStorage(tasks.value)
-})
+  tasks.value = dbTasks;
+});
 </script>
 
 <template>
