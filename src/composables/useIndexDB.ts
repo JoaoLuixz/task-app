@@ -72,5 +72,26 @@ export function useIndexDB(
     });
   }
 
-  return { addTask, getTasks, updateTask };
+  async function deleteTask(taskId: number): Promise<{ error?: Error; task?: Task }> {
+    const db = await startDatabase();
+
+    const dbTransaction = db.transaction(config.defaultTaskObjectStoreName, 'readwrite');
+    const tasksObjectStore = dbTransaction.objectStore(config.defaultTaskObjectStoreName);
+
+    const taskRequest: IDBRequest<Task> = tasksObjectStore.get(taskId);
+
+    return new Promise((resolve, reject) => {
+      taskRequest.onerror = () => {
+        reject({ error: { message: 'Error deleting task' } });
+      };
+
+      taskRequest.onsuccess = () => {
+        tasksObjectStore.delete(taskRequest.result.id);
+
+        resolve({ task: taskRequest.result });
+      };
+    });
+  }
+
+  return { createTask, getTasks, updateTask, deleteTask };
 }
