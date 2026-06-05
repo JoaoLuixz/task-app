@@ -147,13 +147,24 @@ watchEffect(async () => {
             />
           </div>
           <div class="filter-buttons-container">
-            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="done"
+            <FilterButton
+              @changeFilter="changeTaskListFilter"
+              buttonFilter="done"
+              :isActive="filteringTasksBy == 'done'"
               >Done</FilterButton
             >
-            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="notDone"
+            <FilterButton
+              @changeFilter="changeTaskListFilter"
+              buttonFilter="notDone"
+              :isActive="filteringTasksBy === 'notDone'"
               >Todo</FilterButton
             >
-            <FilterButton @changeFilter="changeTaskListFilter" buttonFilter="all">All</FilterButton>
+            <FilterButton
+              @changeFilter="changeTaskListFilter"
+              buttonFilter="all"
+              :isActive="filteringTasksBy === 'all'"
+              >All</FilterButton
+            >
           </div>
         </div>
         <div
