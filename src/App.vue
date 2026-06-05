@@ -136,7 +136,7 @@ watchEffect(async () => {
         <TaskForm @addTask="addTask" />
         <div class="action-buttons-container">
           <div class="download-container">
-            <a :href="tasksDownloadLink" download="tasks.json">Donwload</a>
+            <a :href="tasksDownloadLink" download="tasks.json">Download</a>
             <label for="tasksUploadInput" class="uploadTasksLabel">Upload</label>
             <input
               type="file"
