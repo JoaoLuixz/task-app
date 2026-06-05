@@ -52,13 +52,11 @@ export function useIndexDB(
     });
   }
 
-  async function getTasks(
-    { storeName }: { storeName: string } = { storeName: config.defaultTaskObjectStoreName },
-  ): Promise<{ error?: Error; tasks: Task[] }> {
+  async function getTasks(): Promise<{ error?: Error; tasks: Task[] }> {
     const db = await startDatabase();
 
-    const dbTransaction = db.transaction(storeName, 'readonly');
-    const tasksObjectStore = dbTransaction.objectStore(storeName);
+    const dbTransaction = db.transaction(config.defaultTaskObjectStoreName, 'readonly');
+    const tasksObjectStore = dbTransaction.objectStore(config.defaultTaskObjectStoreName);
 
     const request = tasksObjectStore.getAll();
 
