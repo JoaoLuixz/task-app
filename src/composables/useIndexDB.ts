@@ -5,7 +5,7 @@ import { startDatabase } from '@/utils/indexDB';
 export function useIndexDB(
   { storeName }: { storeName: string } = { storeName: config.defaultTaskObjectStoreName },
 ) {
-  async function createTask(newTask: NewTask): Promise<{ error?: Error; createdTask?: Task }> {
+  async function createTask(newTask: NewTask): Promise<{ error?: Error; task?: Task }> {
     const db = await startDatabase();
 
     const dbTransaction = db.transaction(storeName, 'readwrite');
@@ -21,7 +21,7 @@ export function useIndexDB(
       request.onsuccess = (event) => {
         const taskKeyPath = (event.target as IDBRequest<IDBValidKey>).result;
 
-        resolve({ createdTask: { ...newTask, id: taskKeyPath as number } });
+        resolve({ task: { ...newTask, id: taskKeyPath as number } });
       };
     });
   }
