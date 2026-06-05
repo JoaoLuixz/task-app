@@ -5,7 +5,7 @@ import { startDatabase } from '@/utils/indexDB';
 export function useIndexDB(
   { storeName }: { storeName: string } = { storeName: config.defaultTaskObjectStoreName },
 ) {
-  async function addTask(newTask: NewTask): Promise<{ error?: Error; createdTask?: Task }> {
+  async function createTask(newTask: NewTask): Promise<{ error?: Error; createdTask?: Task }> {
     const db = await startDatabase();
 
     const dbTransaction = db.transaction(storeName, 'readwrite');
