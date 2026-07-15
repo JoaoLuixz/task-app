@@ -80,7 +80,7 @@ export function useIndexDB(): Storage<Task, NewTask> {
     });
   }
 
-  async function getTasks(): Promise<{ error?: Error; data?: Task[] }> {
+  async function getTasks(): Promise<{ error?: Error; data: Task[] }> {
     const db = await startIndexDatabase(indexDbConfig.defaultDatabaseName);
 
     const dbTransaction = db.transaction(indexDbConfig.defaultTaskObjectStoreName, 'readonly');
@@ -90,7 +90,7 @@ export function useIndexDB(): Storage<Task, NewTask> {
 
     return new Promise((resolve, reject) => {
       request.onerror = () => {
-        reject({ error: { message: 'Could not get tasks' }, tasks: undefined });
+        reject({ error: { message: 'Could not get tasks' }, tasks: [] });
       };
 
       request.onsuccess = (event) => {

@@ -126,7 +126,7 @@ watchEffect(async () => {
     return;
   }
 
-  tasks.value = dbTasks;
+  tasks.value = data;
 });
 </script>
 
