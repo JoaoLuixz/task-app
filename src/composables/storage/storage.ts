@@ -1,7 +1,7 @@
 import type { Error } from '@/types';
 
-export interface Storage<T> {
-  store(data: T): Promise<Partial<{ error: Error; data: T }>>;
+export interface Storage<T, NewT> {
+  store(data: NewT): Promise<Partial<{ error: Error; data: T }>>;
   get(id: number): Promise<Partial<{ error: Error; data: T }>>;
   getAll(): Promise<Partial<{ error: Error; data: T[] }>>;
   update(id: number): Promise<Partial<{ error: Error; data: T }>>;
