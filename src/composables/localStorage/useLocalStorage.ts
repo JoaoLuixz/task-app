@@ -1,7 +1,7 @@
 import type { NewTask, Task } from '@/types';
 import type { Storage } from '../storage/storage';
 
-const DEFAULT_KEY = 'task-list-default-key';
+const DEFAULT_KEY = import.meta.env.VITE_LOCAL_STORAGE_KEY || 'default-key';
 
 export default function useLocalStorage(): Storage<Task, NewTask> {
   function store(data: NewTask): Promise<{ error?: Error; data?: Task }> {
