@@ -4,7 +4,7 @@ import type { Task, TaskFilter } from './types';
 import TaskForm from './components/TaskForm.vue';
 import TaskList from './components/TaskList.vue';
 import FilterButton from './components/FilterButton.vue';
-import { useIndexDB } from './composables/useIndexDB.ts';
+import { useIndexDB } from './composables/indexDB/useIndexDB.ts';
 
 const tasks = ref<Task[]>([]);
 
@@ -33,7 +33,7 @@ const tasksDownloadLink = computed(() => {
 });
 
 function addTask(newTaskContent: string) {
-  db.createTask({ content: newTaskContent, isDone: false }).then(({ error, task: createdTask }) => {
+  db.store({ content: newTaskContent, isDone: false }).then(({ error, data: createdTask }) => {
     if (error !== undefined) {
       console.error(error.message);
       return;
@@ -49,7 +49,7 @@ function addTask(newTaskContent: string) {
 }
 
 function toggleTask(taskId: number) {
-  db.updateTask(taskId).then(({ error, task: updatedTask }) => {
+  db.update(taskId).then(({ error, data: updatedTask }) => {
     if (error !== undefined) {
       console.error(error.message);
       return;
@@ -67,7 +67,7 @@ function toggleTask(taskId: number) {
 }
 
 function deleteTask(taskId: number) {
-  db.deleteTask(taskId).then(({ error, task: deletedTask }) => {
+  db.remove(taskId).then(({ error, data: deletedTask }) => {
     if (error !== undefined) {
       console.error(error.message);
 
@@ -99,8 +99,8 @@ function onTasksUpload(event: Event) {
       const uploadedTasks: Task[] = JSON.parse(event.target?.result as string);
 
       for (const task of uploadedTasks) {
-        db.createTask({ content: task.content, isDone: task.isDone }).then(
-          ({ error, task: createdTask }) => {
+        db.store({ content: task.content, isDone: task.isDone }).then(
+          ({ error, data: createdTask }) => {
             if (error !== undefined || createdTask === undefined) {
               console.error(error?.message);
               return;
@@ -118,7 +118,9 @@ function onTasksUpload(event: Event) {
   reader.readAsText(uploadedFile);
 }
 watchEffect(async () => {
-  const { error, tasks: dbTasks } = await db.getTasks();
+  const { error, data } = await db.getAll();
+  console.log(error, data, 'here and now');
+
   if (error !== undefined) {
     console.error(error.message);
     return;
