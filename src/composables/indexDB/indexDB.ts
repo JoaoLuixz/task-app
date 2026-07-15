@@ -1,8 +1,4 @@
-import config from '@/config/config';
-
-async function startDatabase(
-  { databaseName }: { databaseName: string } = { databaseName: config.defaultDatabaseName },
-): Promise<IDBDatabase> {
+async function startIndexDatabase(databaseName: string): Promise<IDBDatabase> {
   const request = window.indexedDB.open(databaseName);
 
   return new Promise((resolve, reject) => {
@@ -23,4 +19,4 @@ async function startDatabase(
   });
 }
 
-export { startDatabase };
+export { startIndexDatabase };
