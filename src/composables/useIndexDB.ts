@@ -67,7 +67,7 @@ export function useIndexDB(
 
       request.onsuccess = (event) => {
         const tasks = (event.target as IDBRequest<Task[]>).result;
-        resolve({ error: undefined, tasks });
+        resolve({ tasks });
       };
     });
   }
